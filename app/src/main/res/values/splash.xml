@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Theme.App.First" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenBackground">#FF444444</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/ic_launcher_foreground</item>
+        <item name="postSplashScreenTheme">@style/Theme.ComposeExperiments</item>
+    </style>
+</resources>
