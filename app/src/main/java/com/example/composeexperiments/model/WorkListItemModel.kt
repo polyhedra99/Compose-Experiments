@@ -1,23 +1,18 @@
 package com.example.composeexperiments.model
 
-import androidx.compose.ui.graphics.Color
 import com.example.composeexperiments.utils.constants.UiConstants
 
-data class DemoListItemModel(
+data class WorkListItemModel(
     val index: Int,
     val title: String,
-    val body: String,
-    val primaryColor: Color,
-    val secondaryColor: Color
+    val body: String
 ) {
     // I honestly prefer such companion to default values, readability-wise
     companion object {
-        fun defaultModel() = DemoListItemModel(
+        fun defaultModel() = WorkListItemModel(
             index = 1,
             title = "Title",
-            body = UiConstants.LOREM_IPSUM,
-            primaryColor = Color.Gray,
-            secondaryColor = Color.DarkGray
+            body = UiConstants.LOREM_IPSUM
         )
     }
 }

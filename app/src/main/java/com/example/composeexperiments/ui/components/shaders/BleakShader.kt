@@ -1,4 +1,4 @@
-package com.example.composeexperiments.ui.components
+package com.example.composeexperiments.ui.components.shaders
 
 import android.graphics.RuntimeShader
 import androidx.compose.animation.core.withInfiniteAnimationFrameMillis
@@ -14,19 +14,18 @@ import androidx.compose.ui.node.ModifierNodeElement
 import kotlinx.coroutines.launch
 import org.intellij.lang.annotations.Language
 
-
 @Composable
-fun WavyBackground(color: Color, modifier: Modifier) {
-    Box(modifier = modifier.then(WavyBackgroundElement(color)))
+fun BleakShader(color: Color, modifier: Modifier) {
+    Box(modifier = modifier.then(BleakElement(color)))
 }
 
-private data class WavyBackgroundElement(val color: Color) : ModifierNodeElement<WavyBackgroundNode>() {
-    override fun create() = WavyBackgroundNode(color)
+private data class BleakElement(val color: Color) : ModifierNodeElement<BleakNode>() {
+    override fun create() = BleakNode(color)
 
-    override fun update(node: WavyBackgroundNode) {}
+    override fun update(node: BleakNode) {}
 }
 
-private class WavyBackgroundNode(color: Color) : DrawModifierNode, Modifier.Node() {
+private class BleakNode(color: Color) : DrawModifierNode, Modifier.Node() {
     private val shader = RuntimeShader(SHADER)
     private val shaderBrush = ShaderBrush(shader)
     private val time = mutableFloatStateOf(0f)
@@ -59,20 +58,20 @@ private class WavyBackgroundNode(color: Color) : DrawModifierNode, Modifier.Node
 }
 
 @Language("AGSL")
-val SHADER = """
+private val SHADER = """
     uniform float2 resolution;
     uniform float time;
     layout(color) uniform half4 color;
     
     float calculateColorMultiplier(float yCoord, float factor) {
-        return step(yCoord, 1.0 + factor * 2.0) - step(yCoord, factor - 0.1);
+        return smoothstep(factor - 0.1, 1.0 + factor * 2.0, yCoord);
     }
 
     float4 main(in float2 fragCoord) {
         // Config values
         const float speedMultiplier = 1.5;
         const float waveDensity = 1.0;
-        const float loops = 8.0;
+        const float loops = 4.0;
         const float energy = 0.6;
         
         // Calculated values
@@ -93,6 +92,11 @@ val SHADER = """
             uv.y += curve;
         }
         
-        return float4(rgbColor, 1.0);
+        // Add a gradient to simulate light reflection
+        float gradient = 1.0 - uv.y;
+        rgbColor *= gradient;
+        
+        float alpha = smoothstep(1.0, 0.0, uv.y);
+        return float4(rgbColor, alpha);
     }
 """.trimIndent()

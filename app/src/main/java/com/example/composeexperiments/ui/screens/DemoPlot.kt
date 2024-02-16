@@ -1,4 +1,4 @@
-package com.example.composeexperiments.ui.screen
+package com.example.composeexperiments.ui.screens
 
 import androidx.compose.animation.core.withInfiniteAnimationFrameMillis
 import androidx.compose.foundation.Canvas

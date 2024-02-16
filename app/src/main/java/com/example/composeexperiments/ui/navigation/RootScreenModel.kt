@@ -2,7 +2,6 @@ package com.example.composeexperiments.ui.navigation
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.List
-import androidx.compose.material.icons.filled.Call
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -13,11 +12,11 @@ enum class RootScreenModel(
     val color: DrawerColorCombination,
     val route: String
 ) {
-    DemoList(
-        label = "Demo List",
+    WorkList(
+        label = "Work List",
         icon = Icons.AutoMirrored.Filled.List,
         color = DrawerColorCombination.BlueRed,
-        route = "demo_list"
+        route = "work_list"
     ),
     DemoPager(
         label = "Demo Pager",

@@ -13,10 +13,8 @@ import androidx.compose.material3.DrawerValue
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
@@ -28,7 +26,7 @@ import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import com.example.composeexperiments.ui.components.WavyBackground
+import com.example.composeexperiments.ui.components.shaders.WaveShader
 import com.example.composeexperiments.ui.navigation.RootScreenModel
 import com.example.composeexperiments.ui.navigation.DrawerContents
 import com.example.composeexperiments.ui.navigation.NavigationComponent
@@ -39,7 +37,7 @@ import kotlinx.coroutines.launch
 fun MainContent() {
     val navController = rememberNavController()
 
-    WavyBackground(
+    WaveShader(
         color = Color.LightGray,
         modifier = Modifier
             .fillMaxSize()

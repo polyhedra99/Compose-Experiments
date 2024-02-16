@@ -7,9 +7,9 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import com.example.composeexperiments.ui.screen.DemoList
-import com.example.composeexperiments.ui.screen.DemoPlot
-import com.example.composeexperiments.ui.screen.DemoPager
+import com.example.composeexperiments.ui.screens.WorkList
+import com.example.composeexperiments.ui.screens.DemoPlot
+import com.example.composeexperiments.ui.screens.DemoPager
 
 @Composable
 fun NavigationComponent(
@@ -20,12 +20,12 @@ fun NavigationComponent(
 ) {
     NavHost(
         navController = navController,
-        startDestination = RootScreenModel.DemoList.route,
+        startDestination = RootScreenModel.WorkList.route,
         enterTransition = { slideInHorizontally { fullWidth -> fullWidth } },
         exitTransition = { slideOutHorizontally { fullWidth -> fullWidth } },
         modifier = modifier
     ) {
-        composable(RootScreenModel.DemoList.route) { DemoList(childModifier, onDrawerToggle) }
+        composable(RootScreenModel.WorkList.route) { WorkList(childModifier, onDrawerToggle) }
         composable(RootScreenModel.DemoPlot.route) { DemoPlot(childModifier, onDrawerToggle) }
         composable(RootScreenModel.DemoPager.route) { DemoPager(childModifier, onDrawerToggle) }
     }

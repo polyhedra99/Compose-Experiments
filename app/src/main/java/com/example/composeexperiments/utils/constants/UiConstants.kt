@@ -15,15 +15,6 @@ object UiConstants {
     const val ELEVATION_NOT_SELECTED = 2
     const val ELEVATION_SELECTED = 4
 
-    const val DEMO_LIST_SECONDARY_RADIUS = 12
-    const val DEMO_LIST_OUTLINE_RADIUS = 16
-    const val DEMO_LIST_CROSS_ITEM_PADDING = 24
-    const val DEMO_LIST_ITEM_ELEVATION = 4
-    const val DEMO_LIST_ITEM_ODD_PADDING = 48
-    const val DEMO_LIST_ITEM_EVEN_PADDING = 86
-    const val DEMO_LIST_ITEM_ODD_SCALE = 1.1f
-    const val DEMO_LIST_ITEM_EVEN_SCALE = 1f
-
     const val FUNCTIONS_STROKE_WIDTH = 5f
     const val PLOT_STROKE_WIDTH = 0.5f
     const val FUNCTIONS_MIN_RADIUS = 40f
@@ -34,5 +25,5 @@ object UiConstants {
     const val LOREM_IPSUM = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed " +
             "do eiusmod tempor incididunt ut labore et dolore magna aliqua."
 
-    val DEFAULT_ROOT_SCREEN = RootScreenModel.DemoList
+    val DEFAULT_ROOT_SCREEN = RootScreenModel.WorkList
 }

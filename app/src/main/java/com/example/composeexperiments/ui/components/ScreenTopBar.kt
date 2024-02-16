@@ -44,7 +44,7 @@ fun ScreenTopBar(title: String, tintColor: Color, onDrawerToggle: () -> Unit) {
 @Preview
 fun ScreenTopBar_Preview() {
     ScreenTopBar(
-        title = RootScreenModel.DemoList.label,
+        title = RootScreenModel.WorkList.label,
         tintColor = Color.Black
     ) {}
 }
