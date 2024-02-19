@@ -103,7 +103,8 @@ fun RootContent(
                 val roundedCorners = lerp(0f, 32.dp.toPx(), fraction)
                 this.shape = RoundedCornerShape(roundedCorners)
                 this.clip = true
-            }
+            },
+        isDrawerOpened = drawerDraggableState.currentValue == DrawerValue.Open
     )
 }
 

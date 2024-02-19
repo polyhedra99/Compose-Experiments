@@ -1,40 +1,46 @@
 package com.example.composeexperiments.ui.screens
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.example.composeexperiments.model.WorkListInteractions
 import com.example.composeexperiments.model.WorkListItemModel
 import com.example.composeexperiments.ui.components.ScreenTopBar
+import com.example.composeexperiments.ui.components.ScrollToTopButton
 import com.example.composeexperiments.ui.components.WorkListItem
 import com.example.composeexperiments.ui.navigation.RootScreenModel
 import com.example.composeexperiments.ui.theme.PurpleGrey40
 import com.example.composeexperiments.utils.constants.UiConstants
 import com.example.composeexperiments.utils.constants.WorkChatConstants
+import kotlinx.coroutines.launch
 
 @Composable
 fun WorkList(
     modifier: Modifier,
+    interactions: WorkListInteractions,
     onDrawerToggle: () -> Unit
 ) {
-    Card(
-        shape = RectangleShape,
-        colors = CardDefaults.cardColors(
-            containerColor = PurpleGrey40
-        ),
-        modifier = modifier
+    Box(
+        modifier = modifier.background(PurpleGrey40)
     ) {
+        val listState = rememberLazyListState()
+        val scope = rememberCoroutineScope()
+
         LazyColumn(
             modifier = modifier.fillMaxSize(),
+            state = listState,
             horizontalAlignment = Alignment.End
         ) {
             item {
@@ -51,19 +57,25 @@ fun WorkList(
             items(count = iterations, key = { generatedList.get(it).index }) { index ->
                 WorkListItem(
                     model = generatedList.get(index),
-                    modifier = Modifier
-                        .padding(bottom = 6.dp)
-                        .background(generateColorFor(index, step))
+                    interactions = interactions,
+                    color = generateColorFor(index, step)
                 )
             }
         }
+        AnimatedVisibility(
+            visible = listState.canScrollBackward,
+            modifier = Modifier
+                .align(Alignment.BottomEnd)
+                .padding(16.dp)
+                .clickable {
+                    scope.launch {
+                        listState.animateScrollToItem(0)
+                    }
+                }
+        ) {
+            ScrollToTopButton()
+        }
     }
-}
-
-@Composable
-@Preview
-fun WorkList_Preview() {
-    WorkList(Modifier) {}
 }
 
 private fun generateWorkListItems(iterations: Int): List<WorkListItemModel> {
@@ -78,8 +90,17 @@ private fun generateWorkListItems(iterations: Int): List<WorkListItemModel> {
 
 private fun generateColorFor(index: Int, step: Float): Color =
     Color(
-        alpha = 0.8f,
         red = Color.DarkGray.red + index * step,
         green = Color.DarkGray.green + index * step,
         blue = Color.DarkGray.blue + index * step
     )
+
+@Composable
+@Preview
+fun WorkList_Preview() {
+    WorkList(
+        modifier = Modifier,
+        interactions = WorkListInteractions.defaultInteractions(),
+        onDrawerToggle = {}
+    )
+}
