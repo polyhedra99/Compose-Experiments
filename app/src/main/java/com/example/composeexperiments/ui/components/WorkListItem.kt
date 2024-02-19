@@ -10,6 +10,7 @@ import androidx.compose.foundation.gestures.DraggableAnchors
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.anchoredDraggable
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -27,10 +28,9 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -44,6 +44,8 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
@@ -66,59 +68,29 @@ fun WorkListItem(
     modifier: Modifier = Modifier
 ) {
     val localDensity = LocalDensity.current
-    val endActionSizePx = with(localDensity) {
-        (WorkChatConstants.DEFAULT_ACTION_SIZE.dp * 2).toPx()
-    }
+    val state = remember { constructDraggableState(localDensity) }
 
-    val state = remember {
-        AnchoredDraggableState(
-            initialValue = AnchorsDoublet.First,
-            anchors = DraggableAnchors {
-                AnchorsDoublet.First at 0f
-                AnchorsDoublet.Second at endActionSizePx
-            },
-            positionalThreshold = { distance: Float -> distance * 0.5f },
-            velocityThreshold = {
-                with(localDensity) {
-                    WorkChatConstants.VELOCITY_THRESHOLD.dp.toPx()
-                }
-            },
-            animationSpec = tween(),
-        )
-    }
-
-    var itemHeight by remember { mutableStateOf(0.dp) }
-    var customModifier = modifier
-        .zIndex(1f)
-        .draglessModifier(
-            -state
-                .requireOffset()
-                .roundToInt()
-        )
-        .onGloballyPositioned {
-            itemHeight = with(localDensity) {
-                it.size.height.toFloat().toDp()
-            }
-        }
-        .background(color)
-    if (!interactions.disableItemDrag) {
-        customModifier = customModifier
-            .anchoredDraggable(state, Orientation.Horizontal, reverseDirection = true)
-    }
-
+    val itemHeight = remember { mutableStateOf(0.dp) }
+    val itemModifier = constructItemModifier(state, interactions,
+        itemHeight, color, localDensity, modifier)
 
     Box(modifier = Modifier.padding(bottom = WorkChatConstants.ITEM_BOTTOM_PADDING.dp)) {
-        WorkListItemLayout(model, customModifier)
-        Row(
-            modifier = Modifier
-                .align(Alignment.CenterEnd)
-        ) {
-            val actionModifier = Modifier
-                .height(itemHeight)
-                .width(WorkChatConstants.DEFAULT_ACTION_SIZE.dp)
-            DeleteAction(actionModifier)
-            CallAction(actionModifier)
-        }
+        WorkListItemLayout(model, itemModifier)
+        EndActions(itemHeight.value)
+    }
+}
+
+@Composable
+private fun BoxScope.EndActions(itemHeight: Dp) {
+    Row(
+        modifier = Modifier
+            .align(Alignment.CenterEnd)
+    ) {
+        val actionModifier = Modifier
+            .height(itemHeight)
+            .width(WorkChatConstants.DEFAULT_ACTION_SIZE.dp)
+        DeleteAction(actionModifier)
+        CallAction(actionModifier)
     }
 }
 
@@ -163,7 +135,7 @@ private fun WorkListItemLayout(model: WorkListItemModel, modifier: Modifier) {
 @Composable
 private fun DeleteAction(modifier: Modifier) {
     Box(modifier = modifier
-        .background(Color.Red.copy(alpha = 0.5f))
+        .background(Color.Red.copy(alpha = WorkChatConstants.ACTION_ALPHA))
         .clickable { /* TODO("Not implemented") */ }
     ) {
         Icon(
@@ -179,7 +151,7 @@ private fun DeleteAction(modifier: Modifier) {
 @Composable
 private fun CallAction(modifier: Modifier) {
     Box(modifier = modifier
-        .background(Color.Green.copy(alpha = 0.5f))
+        .background(Color.Green.copy(alpha = WorkChatConstants.ACTION_ALPHA))
         .clickable { /* TODO("Not implemented") */ }
     ) {
         Icon(
@@ -305,6 +277,56 @@ private fun Modifier.draglessModifier(xOffset: Int) = this
             y = 0
         )
     }
+
+@OptIn(ExperimentalFoundationApi::class)
+private fun constructDraggableState(localDensity: Density): AnchoredDraggableState<AnchorsDoublet> {
+    val endActionSizePx = with(localDensity) {
+        (WorkChatConstants.DEFAULT_ACTION_SIZE.dp * 2).toPx()
+    }
+    return AnchoredDraggableState(
+        initialValue = AnchorsDoublet.First,
+        anchors = DraggableAnchors {
+            AnchorsDoublet.First at 0f
+            AnchorsDoublet.Second at endActionSizePx
+        },
+        positionalThreshold = { distance: Float -> distance * 0.5f },
+        velocityThreshold = {
+            with(localDensity) {
+                WorkChatConstants.VELOCITY_THRESHOLD.dp.toPx()
+            }
+        },
+        animationSpec = tween(),
+    )
+}
+
+@OptIn(ExperimentalFoundationApi::class)
+private fun constructItemModifier(
+    state: AnchoredDraggableState<AnchorsDoublet>,
+    interactions: WorkListInteractions,
+    itemHeight: MutableState<Dp>,
+    color: Color,
+    localDensity: Density,
+    modifier: Modifier
+): Modifier {
+    var customModifier = modifier
+        .zIndex(1f)
+        .draglessModifier(
+            -state
+                .requireOffset()
+                .roundToInt()
+        )
+        .onGloballyPositioned {
+            itemHeight.value = with(localDensity) {
+                it.size.height.toFloat().toDp()
+            }
+        }
+        .background(color)
+    if (!interactions.disableItemDrag) {
+        customModifier = customModifier
+            .anchoredDraggable(state, Orientation.Horizontal, reverseDirection = true)
+    }
+    return customModifier
+}
 
 @Composable
 @Preview
