@@ -1,5 +1,6 @@
 package com.example.composeexperiments.ui.components
 
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
@@ -323,12 +324,25 @@ private fun Modifier.workItemModifications(
     interactions: WorkListInteractions,
     color: Color,
 ): Modifier = if (interactions.disableItemDrag) {
-    this.draglessModifier(-state.requireOffset().roundToInt())
+    this
+        .draglessModifier(
+            -state
+                .requireOffset()
+                .roundToInt()
+        )
         .background(color)
 } else {
-    this.draglessModifier(-state.requireOffset().roundToInt())
-        .background(color).anchoredDraggable(state,
-            Orientation.Horizontal, reverseDirection = true)
+    this
+        .draglessModifier(
+            -state
+                .requireOffset()
+                .roundToInt()
+        )
+        .background(color)
+        .anchoredDraggable(
+            state,
+            Orientation.Horizontal, reverseDirection = true
+        )
 }
 
 @OptIn(ExperimentalFoundationApi::class)

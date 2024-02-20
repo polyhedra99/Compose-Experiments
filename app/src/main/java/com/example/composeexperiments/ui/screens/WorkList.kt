@@ -1,6 +1,8 @@
 package com.example.composeexperiments.ui.screens
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -9,6 +11,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -25,6 +30,7 @@ import com.example.composeexperiments.ui.theme.PurpleGrey40
 import com.example.composeexperiments.utils.constants.UiConstants
 import com.example.composeexperiments.utils.constants.WorkChatConstants
 import kotlinx.coroutines.launch
+import kotlin.math.max
 
 @Composable
 fun WorkList(
@@ -37,6 +43,16 @@ fun WorkList(
     ) {
         val listState = rememberLazyListState()
         val scope = rememberCoroutineScope()
+
+        val visibleCount by remember {
+            derivedStateOf { listState.layoutInfo.visibleItemsInfo.size }
+        }
+        val colorStep by remember(visibleCount) {
+            derivedStateOf { calculateItemColorStep(visibleCount) }
+        }
+        val firstVisibleIndex by remember {
+            derivedStateOf { listState.firstVisibleItemIndex }
+        }
 
         LazyColumn(
             modifier = modifier.fillMaxSize(),
@@ -54,10 +70,17 @@ fun WorkList(
             val iterations = 75
             val generatedList = generateWorkListItems(iterations)
             items(count = iterations, key = { generatedList.get(it).index }) { index ->
+                val animatedColor = animateColorAsState(
+                    targetValue = calculateColorForIndex(
+                        (index - firstVisibleIndex) * colorStep
+                    ),
+                    label = "Animated Color",
+                    animationSpec = tween(WorkChatConstants.COLOR_ANIMATION_DURATION)
+                )
                 WorkListItem(
                     model = generatedList.get(index),
                     interactions = interactions,
-                    color = Color.DarkGray,
+                    color = animatedColor.value,
                     modifier = Modifier
                         .padding(bottom = WorkChatConstants.ITEM_BOTTOM_PADDING.dp)
                 )
@@ -88,6 +111,18 @@ private fun generateWorkListItems(iterations: Int): List<WorkListItemModel> {
         )
     }
 }
+
+private fun calculateItemColorStep(totalVisible: Int): Float =
+    if (totalVisible == 0) 0f else (Color.Black.red - Color.DarkGray.red) / totalVisible.toFloat()
+
+
+private fun calculateColorForIndex(
+    stepDiff: Float
+): Color = Color.DarkGray.copy(
+    red = max(Color.DarkGray.red + stepDiff, 0f),
+    green = max(Color.DarkGray.green + stepDiff, 0f),
+    blue = max(Color.DarkGray.blue + stepDiff, 0f)
+)
 
 @Composable
 @Preview
