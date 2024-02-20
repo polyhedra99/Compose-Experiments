@@ -67,10 +67,8 @@ fun WorkListItem(
     val localDensity = LocalDensity.current
     val state = remember { constructDraggableState(localDensity) }
 
-    val itemModifier = constructItemModifier(state, interactions, color)
-
     Box(modifier = modifier) {
-        WorkListItemLayout(model, itemModifier)
+        WorkListItemLayout(model, Modifier.workItemModifications(state, interactions, color))
     }
 }
 
@@ -320,23 +318,17 @@ private fun constructDraggableState(localDensity: Density): AnchoredDraggableSta
 }
 
 @OptIn(ExperimentalFoundationApi::class)
-private fun constructItemModifier(
+private fun Modifier.workItemModifications(
     state: AnchoredDraggableState<AnchorsDoublet>,
     interactions: WorkListInteractions,
     color: Color,
-): Modifier {
-    var customModifier = Modifier
-        .draglessModifier(
-            -state
-                .requireOffset()
-                .roundToInt()
-        )
+): Modifier = if (interactions.disableItemDrag) {
+    this.draglessModifier(-state.requireOffset().roundToInt())
         .background(color)
-    if (!interactions.disableItemDrag) {
-        customModifier = customModifier
-            .anchoredDraggable(state, Orientation.Horizontal, reverseDirection = true)
-    }
-    return customModifier
+} else {
+    this.draglessModifier(-state.requireOffset().roundToInt())
+        .background(color).anchoredDraggable(state,
+            Orientation.Horizontal, reverseDirection = true)
 }
 
 @OptIn(ExperimentalFoundationApi::class)
