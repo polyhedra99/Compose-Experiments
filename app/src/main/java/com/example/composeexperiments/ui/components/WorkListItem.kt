@@ -382,6 +382,6 @@ fun WorkListItem_Preview() {
         WorkListItemModel.defaultModel(),
         WorkListInteractions.defaultInteractions(),
         Color.DarkGray,
-        Modifier.padding(bottom = WorkChatConstants.ITEM_BOTTOM_PADDING.dp)
+        Modifier.padding(bottom = WorkChatConstants.ITEM_MIN_BOTTOM_PADDING.dp)
     )
 }
