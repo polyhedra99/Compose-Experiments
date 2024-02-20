@@ -53,12 +53,13 @@ fun WorkList(
 
             val iterations = 75
             val generatedList = generateWorkListItems(iterations)
-            val step = (Color.Black.red - Color.DarkGray.red) / iterations.toFloat()
             items(count = iterations, key = { generatedList.get(it).index }) { index ->
                 WorkListItem(
                     model = generatedList.get(index),
                     interactions = interactions,
-                    color = generateColorFor(index, step)
+                    color = Color.DarkGray,
+                    modifier = Modifier
+                        .padding(bottom = WorkChatConstants.ITEM_BOTTOM_PADDING.dp)
                 )
             }
         }
@@ -87,13 +88,6 @@ private fun generateWorkListItems(iterations: Int): List<WorkListItemModel> {
         )
     }
 }
-
-private fun generateColorFor(index: Int, step: Float): Color =
-    Color(
-        red = Color.DarkGray.red + index * step,
-        green = Color.DarkGray.green + index * step,
-        blue = Color.DarkGray.blue + index * step
-    )
 
 @Composable
 @Preview

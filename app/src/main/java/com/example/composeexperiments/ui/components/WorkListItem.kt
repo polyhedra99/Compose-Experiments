@@ -10,12 +10,10 @@ import androidx.compose.foundation.gestures.DraggableAnchors
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.anchoredDraggable
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
@@ -29,7 +27,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -65,37 +62,56 @@ fun WorkListItem(
     model: WorkListItemModel,
     interactions: WorkListInteractions,
     color: Color,
-    modifier: Modifier = Modifier
+    modifier: Modifier
 ) {
     val localDensity = LocalDensity.current
     val state = remember { constructDraggableState(localDensity) }
 
-    val itemHeight = remember { mutableStateOf(0.dp) }
-    val itemModifier = constructItemModifier(state, interactions,
-        itemHeight, color, localDensity, modifier)
+    val itemModifier = constructItemModifier(state, interactions, color)
 
-    Box(modifier = Modifier.padding(bottom = WorkChatConstants.ITEM_BOTTOM_PADDING.dp)) {
+    Box(modifier = modifier) {
         WorkListItemLayout(model, itemModifier)
-        EndActions(itemHeight.value)
-    }
-}
-
-@Composable
-private fun BoxScope.EndActions(itemHeight: Dp) {
-    Row(
-        modifier = Modifier
-            .align(Alignment.CenterEnd)
-    ) {
-        val actionModifier = Modifier
-            .height(itemHeight)
-            .width(WorkChatConstants.DEFAULT_ACTION_SIZE.dp)
-        DeleteAction(actionModifier)
-        CallAction(actionModifier)
     }
 }
 
 @Composable
 private fun WorkListItemLayout(model: WorkListItemModel, modifier: Modifier) {
+    Layout(
+        contents = listOf<@Composable () -> Unit>(
+            { WorkListItemUpperLayout(model = model, modifier = modifier) },
+            {
+                DeleteAction()
+                CallAction()
+            }
+        )
+    ) { (upperMeasurable, actionMeasurables), constraints ->
+        require(upperMeasurable.size == 1) {
+            "Should emit only one upper layout"
+        }
+        val upperPlaceable = upperMeasurable.first().measure(constraints)
+        val actionPlaceables = actionMeasurables.map {
+            it.measure(
+                constraints.copy(
+                    minHeight = upperPlaceable.height,
+                    maxHeight = upperPlaceable.height
+                )
+            )
+        }
+
+        layout(upperPlaceable.width, upperPlaceable.height) {
+            actionPlaceables.forEachIndexed { index, placeable ->
+                placeable.place(
+                    x = upperPlaceable.width -
+                            (placeable.width * (actionPlaceables.size - index)), y = 0
+                )
+            }
+            upperPlaceable.place(x = 0, y = 0)
+        }
+    }
+}
+
+@Composable
+private fun WorkListItemUpperLayout(model: WorkListItemModel, modifier: Modifier) {
     Layout(
         modifier = modifier,
         contents = listOf<@Composable () -> Unit>(
@@ -133,8 +149,9 @@ private fun WorkListItemLayout(model: WorkListItemModel, modifier: Modifier) {
 }
 
 @Composable
-private fun DeleteAction(modifier: Modifier) {
-    Box(modifier = modifier
+private fun DeleteAction() {
+    Box(modifier = Modifier
+        .width(WorkChatConstants.DEFAULT_ACTION_SIZE.dp)
         .background(Color.Red.copy(alpha = WorkChatConstants.ACTION_ALPHA))
         .clickable { /* TODO("Not implemented") */ }
     ) {
@@ -142,15 +159,17 @@ private fun DeleteAction(modifier: Modifier) {
             imageVector = Icons.Filled.Delete,
             tint = Color.White,
             contentDescription = "Delete",
-            modifier = Modifier.align(Alignment.Center)
+            modifier = Modifier
+                .align(Alignment.Center)
                 .scale(WorkChatConstants.ACTION_SCALE)
         )
     }
 }
 
 @Composable
-private fun CallAction(modifier: Modifier) {
-    Box(modifier = modifier
+private fun CallAction() {
+    Box(modifier = Modifier
+        .width(WorkChatConstants.DEFAULT_ACTION_SIZE.dp)
         .background(Color.Green.copy(alpha = WorkChatConstants.ACTION_ALPHA))
         .clickable { /* TODO("Not implemented") */ }
     ) {
@@ -158,7 +177,8 @@ private fun CallAction(modifier: Modifier) {
             imageVector = Icons.Filled.Phone,
             tint = Color.White,
             contentDescription = "Delete",
-            modifier = Modifier.align(Alignment.Center)
+            modifier = Modifier
+                .align(Alignment.Center)
                 .scale(WorkChatConstants.ACTION_SCALE)
         )
     }
@@ -303,12 +323,31 @@ private fun constructDraggableState(localDensity: Density): AnchoredDraggableSta
 private fun constructItemModifier(
     state: AnchoredDraggableState<AnchorsDoublet>,
     interactions: WorkListInteractions,
+    color: Color,
+): Modifier {
+    var customModifier = Modifier
+        .draglessModifier(
+            -state
+                .requireOffset()
+                .roundToInt()
+        )
+        .background(color)
+    if (!interactions.disableItemDrag) {
+        customModifier = customModifier
+            .anchoredDraggable(state, Orientation.Horizontal, reverseDirection = true)
+    }
+    return customModifier
+}
+
+@OptIn(ExperimentalFoundationApi::class)
+private fun constructItemModifierOld(
+    state: AnchoredDraggableState<AnchorsDoublet>,
+    interactions: WorkListInteractions,
     itemHeight: MutableState<Dp>,
     color: Color,
     localDensity: Density,
-    modifier: Modifier
 ): Modifier {
-    var customModifier = modifier
+    var customModifier = Modifier
         .zIndex(1f)
         .draglessModifier(
             -state
@@ -317,7 +356,9 @@ private fun constructItemModifier(
         )
         .onGloballyPositioned {
             itemHeight.value = with(localDensity) {
-                it.size.height.toFloat().toDp()
+                it.size.height
+                    .toFloat()
+                    .toDp()
             }
         }
         .background(color)
@@ -334,6 +375,7 @@ fun WorkListItem_Preview() {
     WorkListItem(
         WorkListItemModel.defaultModel(),
         WorkListInteractions.defaultInteractions(),
-        Color.DarkGray
+        Color.DarkGray,
+        Modifier.padding(bottom = WorkChatConstants.ITEM_BOTTOM_PADDING.dp)
     )
 }

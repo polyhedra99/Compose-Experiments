@@ -22,7 +22,7 @@ fun ScrollToTopButton() {
     Box(modifier = Modifier
         .clip(RoundedCornerShape(16.dp))
         .border(1.dp, Color.Gray, RoundedCornerShape(16.dp))
-        .background(Color.Black)
+        .background(Color.DarkGray)
         .padding(24.dp)
     ) {
         Icon(

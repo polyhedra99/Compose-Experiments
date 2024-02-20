@@ -62,7 +62,7 @@ private val SHADER = """
     uniform float2 resolution;
     uniform float time;
     layout(color) uniform half4 color;
-    
+
     float calculateColorMultiplier(float yCoord, float factor) {
         return smoothstep(factor - 0.1, 1.0 + factor * 2.0, yCoord);
     }
@@ -73,29 +73,29 @@ private val SHADER = """
         const float waveDensity = 1.0;
         const float loops = 4.0;
         const float energy = 0.6;
-        
+
         // Calculated values
         float2 uv = fragCoord / resolution.xy;
         float3 rgbColor = color.rgb;
         float timeOffset = time * speedMultiplier;
         float hAdjustment = uv.x * 4.3;
         float3 loopColor = vec3(1.0 - rgbColor.r, 1.0 - rgbColor.g, 1.0 - rgbColor.b) / loops;
-        
+
         for (float i = 1.0; i <= loops; i += 1.0) {
             float loopFactor = i * 0.1;
             float sinInput = (timeOffset + hAdjustment) * energy;
             float curve = sin(sinInput) * (1.0 - loopFactor) * 0.05;
             float colorMultiplier = calculateColorMultiplier(uv.y, loopFactor);
             rgbColor += loopColor * colorMultiplier;
-            
+
             // Offset for next loop
             uv.y += curve;
         }
-        
+
         // Add a gradient to simulate light reflection
         float gradient = 1.0 - uv.y;
         rgbColor *= gradient;
-        
+
         float alpha = smoothstep(1.0, 0.0, uv.y);
         return float4(rgbColor, alpha);
     }

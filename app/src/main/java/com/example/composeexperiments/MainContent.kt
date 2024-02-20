@@ -26,10 +26,13 @@ import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.example.composeexperiments.ui.components.shaders.ThreeColorsShader
 import com.example.composeexperiments.ui.components.shaders.WaveShader
 import com.example.composeexperiments.ui.navigation.RootScreenModel
 import com.example.composeexperiments.ui.navigation.DrawerContents
 import com.example.composeexperiments.ui.navigation.NavigationComponent
+import com.example.composeexperiments.ui.theme.PurpleGrey40
+import com.example.composeexperiments.ui.theme.PurpleGrey80
 import com.example.composeexperiments.utils.constants.UiConstants
 import kotlinx.coroutines.launch
 
@@ -37,11 +40,11 @@ import kotlinx.coroutines.launch
 fun MainContent() {
     val navController = rememberNavController()
 
-    WaveShader(
-        color = Color.LightGray,
-        modifier = Modifier
-            .fillMaxSize()
-            .scale(scaleX = 1f, scaleY = -1f)
+    ThreeColorsShader(
+        color1 = Color.White,
+        color2 = PurpleGrey40,
+        color3 = Color.Black.copy(alpha = 0.9f),
+        modifier = Modifier.fillMaxSize()
     )
 
     RootDrawer(navController = navController)

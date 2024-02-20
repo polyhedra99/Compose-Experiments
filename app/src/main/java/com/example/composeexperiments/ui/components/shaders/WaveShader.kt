@@ -16,6 +16,8 @@ import org.intellij.lang.annotations.Language
 
 
 @Composable
+// Currently out of commission, because
+// the performance wasn't great
 fun WaveShader(color: Color, modifier: Modifier) {
     Box(modifier = modifier.then(WaveElement(color)))
 }
