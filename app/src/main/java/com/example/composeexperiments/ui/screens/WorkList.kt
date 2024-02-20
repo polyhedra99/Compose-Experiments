@@ -2,6 +2,7 @@ package com.example.composeexperiments.ui.screens
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.LinearOutSlowInEasing
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
@@ -89,7 +90,7 @@ fun WorkList(
                         paddingStep * (index - firstVisibleIndex)
                     ).dp,
                     label = "",
-                    animationSpec = tween(WorkChatConstants.PADDING_ANIMATION_DURATION)
+                    animationSpec = tween(easing = LinearOutSlowInEasing)
                 )
                 WorkListItem(
                     model = generatedList.get(index),
