@@ -10,7 +10,7 @@ import androidx.navigation.compose.composable
 import com.example.composeexperiments.model.WorkListInteractions
 import com.example.composeexperiments.ui.screens.WorkList
 import com.example.composeexperiments.ui.screens.DemoPlot
-import com.example.composeexperiments.ui.screens.DemoPager
+import com.example.composeexperiments.ui.screens.ColorPager
 
 @Composable
 fun NavigationComponent(
@@ -35,6 +35,6 @@ fun NavigationComponent(
             )
         }
         composable(RootScreenModel.DemoPlot.route) { DemoPlot(childModifier, onDrawerToggle) }
-        composable(RootScreenModel.DemoPager.route) { DemoPager(childModifier, onDrawerToggle) }
+        composable(RootScreenModel.DemoPager.route) { ColorPager(childModifier, onDrawerToggle) }
     }
 }
